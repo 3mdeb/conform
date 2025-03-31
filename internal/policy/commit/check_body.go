@@ -5,6 +5,7 @@
 package commit
 
 import (
+	"regexp"
 	"strings"
 
 	"github.com/pkg/errors"
@@ -15,6 +16,9 @@ import (
 // RequiredBodyThreshold is the default minimum number of line changes required
 // to trigger the body check.
 var RequiredBodyThreshold = 10
+
+// ChangeIDRegex stores regex for gerrit-style Change ID.
+var ChangeIDRegex = regexp.MustCompile(`^Change-Id:\sI[a-f0-9]{40}$`)
 
 // Body enforces a maximum number of charcters on the commit
 // header.
@@ -50,6 +54,10 @@ func (c Commit) ValidateBody() policy.Check { //nolint:ireturn
 
 	for _, line := range lines[1:] {
 		if DCORegex.MatchString(strings.TrimSpace(line)) {
+			continue
+		}
+
+		if ChangeIDRegex.MatchString(strings.TrimSpace(line)) {
 			continue
 		}
 
