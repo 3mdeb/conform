@@ -1,4 +1,4 @@
-module github.com/siderolabs/conform
+module github.com/3mdeb/conform
 
 go 1.23.0
 
