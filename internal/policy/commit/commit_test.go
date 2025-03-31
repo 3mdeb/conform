@@ -143,6 +143,50 @@ func TestValidateDCO(t *testing.T) {
 	}
 }
 
+func TestUpstreamStatus(t *testing.T) {
+	type testDesc struct {
+		Name          string
+		CommitMessage string
+		ExpectValid   bool
+	}
+
+	for _, test := range []testDesc{
+		{
+			Name:          "Valid Upstream Status",
+			CommitMessage: "something nice\n\nUpstream-Status: Pending\n\n",
+			ExpectValid:   true,
+		},
+		{
+			Name:          "Valid DCO with CRLF",
+			CommitMessage: "something nice\r\n\r\nUpstream-Status: Pending\r\n\r\n",
+			ExpectValid:   true,
+		},
+		{
+			Name:          "No Upstream Status",
+			CommitMessage: "something nice\n\nnot signed\n",
+			ExpectValid:   false,
+		},
+	} {
+		// Fixes scopelint error.
+		t.Run(test.Name, func(tt *testing.T) {
+			var report policy.Report
+
+			c := Commit{msg: test.CommitMessage}
+			report.AddCheck(c.ValidateUpstreamStatus())
+
+			if test.ExpectValid {
+				if !report.Valid() {
+					tt.Error("Report is invalid with valid Upstream Status")
+				}
+			} else {
+				if report.Valid() {
+					tt.Error("Report is valid with invalid Upstream Status")
+				}
+			}
+		})
+	}
+}
+
 func TestValidConventionalCommitPolicy(t *testing.T) {
 	dir := t.TempDir()
 

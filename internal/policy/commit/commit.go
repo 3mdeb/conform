@@ -73,6 +73,8 @@ type Commit struct {
 	Body *BodyChecks `mapstructure:"body"`
 	// DCO enables the Developer Certificate of Origin check.
 	DCO bool `mapstructure:"dco"`
+	// Upstream-Status check in commit msg
+	UpstreamStatus bool `mapstructure:"upstreamStatus"`
 	// GPG is the user specified settings for the GPG signature check.
 	GPG *GPG `mapstructure:"gpg"`
 	// GPGSignatureGitHubOrganization enforces that GPG signature should come from
@@ -167,6 +169,10 @@ func (c *Commit) compliance(report *policy.Report, g *git.Git, options *policy.O
 
 	if c.DCO {
 		report.AddCheck(c.ValidateDCO())
+	}
+
+	if c.UpstreamStatus {
+		report.AddCheck(c.ValidateUpstreamStatus())
 	}
 
 	if c.GPG != nil {

@@ -57,6 +57,10 @@ func (c Commit) ValidateBody() policy.Check { //nolint:ireturn
 			continue
 		}
 
+		if UpstreamStatusRegex.MatchString(strings.TrimSpace(line)) {
+			continue
+		}
+
 		if ChangeIDRegex.MatchString(strings.TrimSpace(line)) {
 			continue
 		}
